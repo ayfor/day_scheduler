@@ -1,5 +1,6 @@
 //Grab existing HTML elements to be used 
 var timeblockContainerElement = $('#timeblock-container');
+var currentDateElement = $('#currentDay')
 
 //Define array to display time blocks
 var timeblockArray = [
@@ -90,7 +91,6 @@ function importTimeBlocks(){
 function handleSaveItem(event){
     //Console readout
     console.log("Saving item...")
-
     
     //Convert the button that was clicked to a jQuery DOM item
     var target = $(event.target);
@@ -107,15 +107,16 @@ function handleSaveItem(event){
     //Get entered text
     var text = saveButton.parent().children('textarea').val();
 
-    console.log("Index:", index );
-    console.log("Text:", text );
-
-
     localStorage.setItem(index,text);
 
+}
+
+function displayDate(){
+    currentDateElement.text(moment().format('dddd, MMMM Do YYYY'));
 }
 
 
 timeblockContainerElement.on('click', '.saveBtn',handleSaveItem);
 
 importTimeBlocks();
+displayDate();
