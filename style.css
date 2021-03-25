@@ -29,6 +29,7 @@ textarea {
 .time-block {
   text-align: center;
   border-radius: 15px;
+  
 }
 
 .row {
@@ -41,7 +42,9 @@ textarea {
   background-color: #ffffff;
   color: #000000;
   border-top: 1px dashed #000000;
-  padding: 10px;
+  padding: 20px;
+  text-align: left;
+  width:150px;
 }
 
 .past {
