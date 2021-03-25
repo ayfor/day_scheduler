@@ -2,7 +2,7 @@
 var timeblockContainerElement = $('#timeblock-container');
 var currentDateElement = $('#currentDay')
 
-//Define array to display time blocks
+//Define array to display time blocks and create jQuery objects for each entry with referable index
 var timeblockArray = [
     {
         time: "9:00am",
@@ -61,57 +61,66 @@ var timeblockArray = [
 
 ]
 
+//Function that reads data from local storage and uses the timeblockArray to display the timeblock elements 
 function importTimeBlocks(){
 
     for (let index = 0; index < timeblockArray.length; index++) {
         const timeblockArrayElement = timeblockArray[index];
-        var currentEntry = '';
+        let currentEntry = '';
+
         //Check if there is existing content in local storage
         for (let j = 0; j < localStorage.length; j++) {
-            const element = localStorage.getItem(j);
-            if(element){
-                if(index===timeblockArrayElement.localStorageIndex){
-                 currentEntry = element;   
-                }  
-            }
+           let storageItem = localStorage.getItem(index);
+
+            //If the storage item exists set it as the current entry to be the stored text
+           if(storageItem){
+               currentEntry = storageItem;
+           }
         }
         
-        
+        //set current entry to appropriate 
         timeblockArrayElement.domObject.children('textarea').text(currentEntry);
         timeblockContainerElement.append(timeblockArrayElement.domObject);
     }
     
 }
 
-
+//Function called whenever a save button is clicked on a time block
 function handleSaveItem(event){
     //Console readout
-    console.log("Saving item...")
+    //console.log("Saving item...")
     
     //Convert the button that was clicked to a jQuery DOM item
     var target = $(event.target);
 
+    //Check if the save icon is clicked instead of the button itself and adjust handle accordingly
     if (target.hasClass("fas")){
         saveButton = $(event.target).parent();
     }else{
         saveButton = target;
     }
     
-    //Get index for saved 
+    //Get index for data save from data attribute 
     var index = saveButton.parent().children('textarea').data('index');
 
-    //Get entered text
+    //Get entered text for timeblock
     var text = saveButton.parent().children('textarea').val();
 
+    //Enter item into local storage
     localStorage.setItem(index,text);
 
 }
 
+//Function displays current date on the screen using Moment js
 function displayDate(){
+    //Get current date 
     currentDateElement.text(moment().format('dddd, MMMM Do YYYY'));
 }
 
+//Function compares time blocks to current time to color code them properly
+//Called as a helper function from colorCodeTimeBlocks()
 function compareTimeBlocks(currentTime){
+    //For each element in the array, check the current time against the time block data and change classes accordingly
     timeblockArray.forEach(element => {
         let timeblockTime = moment(element.time,"h:mma");
         let timeblockHour = timeblockTime.format("H");
@@ -123,10 +132,12 @@ function compareTimeBlocks(currentTime){
         if(+currentTime>+timeblockHour){
             display.removeClass("present");
             display.addClass("past");
-
+            //Next, check if timeblock is in the future
         }else if(+currentTime<+timeblockHour){
             display.removeClass("past")
             display.addClass("future");
+
+            //Else, timeblock must be in the preset
         }else{
             display.removeClass("future")
             display.addClass("present")
@@ -134,7 +145,9 @@ function compareTimeBlocks(currentTime){
     });
 }
 
+//Function that updates the color coding of the timeblocks using a time interval and Moment js
 function colorCodeTimeBlocks(){
+    //Every second, check if the timeblock color coding should change
     var timeInterval = setInterval(function (){
         let currentTime = moment().format("H");
         compareTimeBlocks(currentTime); 
@@ -142,11 +155,10 @@ function colorCodeTimeBlocks(){
     
 }
 
-
-
-
+//Event deleagation for timeblock save buttons
 timeblockContainerElement.on('click', '.saveBtn',handleSaveItem);
 
+//Call starting functions for display
 importTimeBlocks();
 displayDate();
 colorCodeTimeBlocks();
